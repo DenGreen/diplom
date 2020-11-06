@@ -1,4 +1,5 @@
 import { calcHealthLevel, calcTileType } from './utils';
+import { characterGenerator } from './generators';
 
 export default class GamePlay {
   constructor() {
@@ -61,6 +62,7 @@ export default class GamePlay {
     }
 
     this.cells = Array.from(this.boardEl.children);
+    console.log(characterGenerator().next());
   }
 
   /**
