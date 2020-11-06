@@ -1,5 +1,4 @@
 import { calcHealthLevel, calcTileType } from './utils';
-import { characterGenerator } from './generators';
 
 export default class GamePlay {
   constructor() {
@@ -62,7 +61,6 @@ export default class GamePlay {
     }
 
     this.cells = Array.from(this.boardEl.children);
-    this.visualisPers();
   }
 
   /**
@@ -228,20 +226,6 @@ export default class GamePlay {
   checkBinding() {
     if (this.container === null) {
       throw new Error('GamePlay not bind to DOM');
-    }
-  }
-
-  visualisPers() {
-    let arrCharColumn = characterGenerator().next();
-    let arrCharColumnPlayer = arrCharColumn.value[0];
-    let arrCharColumnComp = arrCharColumn.value[1];
-    console.log(arrCharColumn)
-
-    for (let i = 0; i <= arrCharColumnPlayer[1].length - 1; i += 1) {
-      arrCharColumnPlayer[0][i].innerHTML = `
-      <div class="character ${arrCharColumnPlayer[1][i]}"></div>`;
-      arrCharColumnComp[0][i].innerHTML = `
-      <div class="character ${arrCharColumnComp[1][i]}"></div>`;
     }
   }
 }
