@@ -7,7 +7,7 @@ import {
   Vampire,
 } from "./cpecialCharacter";
 
-import Team from './Team';
+import Team from "./Team";
 
 /**
  * Generates random characters
@@ -16,30 +16,44 @@ import Team from './Team';
  * @param maxLevel max character level
  * @returns Character type children (ex. Magician, Bowman, etc)
  */
+const teamComp = new Team();
+const teamPlayer = new Team();
 
 export function* characterGenerator() {
-  const arrCharacter = [
-    [new Swordsman(1, "swordsman"), new Bowman(1, "bowman"), new Magician(1, "magician")],
-    [new Daemon(1, "daemon"), new Undead(1, "undead"), new Vampire(1, "vampire")],
-  ];
   const column = searchColumn();
-  yield visualis(
-    arrCharacter,
+  yield generateTeam(
+    [
+      [Swordsman, Bowman],
+      [Daemon, Undead, Vampire],
+    ],
+    1,
     column,
     2
   );
-  yield visualis(
-    arrCharacter,
+  yield generateTeam(
+    [
+      [Swordsman, Bowman, Magician],
+      [Daemon, Undead, Vampire],
+    ],
+    2,
     column,
     1
   );
-  yield visualis(
-    arrCharacter,
+  yield generateTeam(
+    [
+      [Swordsman, Bowman, Magician],
+      [Daemon, Undead, Vampire],
+    ],
+    3,
     column,
     2
   );
-  yield visualis(
-    arrCharacter,
+  return generateTeam(
+    [
+      [Swordsman, Bowman, Magician],
+      [Daemon, Undead, Vampire],
+    ],
+    4,
     column,
     2
   );
@@ -62,19 +76,34 @@ function searchColumn() {
   return [arrColumnPlayer, arrColumnComputer];
 }
 
-function visualis(char, column, maxCharacter) {
-  for (let i = 0; i <= maxCharacter - 1; i += 1) {
-    column[0][getRandom(8 + 8)].innerHTML = `
-    <div class="character ${char[0][getRandom(2)].type}"></div>`;
-    column[1][getRandom(8 + 8)].innerHTML = `
-    <div class="character ${char[1][getRandom(2)].type}"></div>`;
-  }
-}
-
 function getRandom(max) {
   return Math.floor(Math.random() * max);
 }
 
-export function generateTeam(allowedTypes, maxLevel, characterCount) {
-  // TODO: write logic here
+export function generateTeam(allowedTypes, maxLevel, column, characterCount) {
+  let columnPlayer = [];
+  let columnComp = [];
+  let charPlayer = [];
+  let charComp = [];
+
+  for (let i = 0; i <= characterCount - 1; i += 1) {
+    console.log(characterCount)
+    let charClassPlayer = allowedTypes[0][getRandom(allowedTypes[0].length)];
+    let charClassComp = allowedTypes[1][getRandom(allowedTypes[1].length)];
+    let charPlayerNew = new charClassPlayer(maxLevel);
+    let charCompNew = new charClassComp(getRandom(maxLevel + 1));
+
+    charPlayer.push(charPlayerNew.type);
+    charComp.push(charCompNew.type);
+
+    columnPlayer.push(column[0][getRandom(8 + 8)]);
+    columnComp.push(column[1][getRandom(8 + 8)]);
+    
+
+    teamComp.arrTeam(charPlayerNew);
+    teamPlayer.arrTeam(charCompNew);
+    console.log(teamPlayer, teamComp)
+  }
+
+  return [[columnPlayer, charPlayer], [columnComp, charComp]];
 }
