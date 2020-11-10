@@ -1,5 +1,4 @@
 import Character from './Character';
-import GamePlay from "./GamePlay";
 
 export default class PositionedCharacter {
   constructor(character, position) {

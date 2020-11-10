@@ -1,3 +1,5 @@
+import PositionedCharacter from './PositionedCharacter';
+
 /**
  * Generates random characters
  *
@@ -14,14 +16,33 @@ export function* characterGenerator(allowedTypes, maxLevel) {
   }
 }
 
-export function generateTeam(allowedTypes, maxLevel, characterCount) {
+export function generateTeam(allowedTypes, maxLevel, characterCount, team) {
   const result = [];
   const generator = characterGenerator(allowedTypes, maxLevel);
+  const arrPosition = generatePosition(team);
 
   for(let i = 0; i < characterCount; i += 1){
     const character = generator.next();
-    result.push(character.value);
+    const random = arrPosition[getRandom(16)];
+
+    result.push(new PositionedCharacter(character.value, random));
   }
-  
+
   return result;
+}
+
+function generatePosition(team) {
+  const valueOne = team === 'Player' ? 0 : 6;
+  const arrPosition = [];
+
+  for (let i = 0; i <= 8 - 1; i += 1) {
+    arrPosition.push(valueOne + i * 8);
+    arrPosition.push((valueOne + 1) + i * 8);
+  }
+
+  return arrPosition;
+}
+
+function getRandom(max) {
+  return Math.floor(Math.random() * max);
 }
