@@ -7,7 +7,9 @@ export default class GameController {
   }
 
   init() {
+    const onCellEnterBind = this.onCellEnter.bind(this);
     this.gamePlay.drawUi(themes.prairie);
+    this.gamePlay.addCellEnterListener(onCellEnterBind);
     // TODO: add event listeners to gamePlay events
     // TODO: load saved stated from stateService
   }
@@ -16,8 +18,8 @@ export default class GameController {
     // TODO: react to click
   }
 
-  onCellEnter(index) {
-    // TODO: react to mouse enter
+  onCellEnter(index){
+    this.gamePlay.showCellTooltip('', index);
   }
 
   onCellLeave(index) {

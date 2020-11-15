@@ -65,7 +65,6 @@ export default class GamePlay {
     this.cells = Array.from(this.boardEl.children);
     
     this.redrawPositions(generateTeam([Swordsman, Bowman, Magician], 2, 2, 'Player'));
-    this.redrawPositions(generateTeam([Daemon, Undead, Vampire], 2, 3, 'Comp'));
   }
 
   /**
