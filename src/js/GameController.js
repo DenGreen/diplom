@@ -8,8 +8,10 @@ export default class GameController {
 
   init() {
     const onCellEnterBind = this.onCellEnter.bind(this);
+    const onCellLeaveBind = this.onCellLeave.bind(this);
     this.gamePlay.drawUi(themes.prairie);
     this.gamePlay.addCellEnterListener(onCellEnterBind);
+    this.gamePlay.addCellLeaveListener(onCellLeaveBind);
     // TODO: add event listeners to gamePlay events
     // TODO: load saved stated from stateService
   }
@@ -19,10 +21,18 @@ export default class GameController {
   }
 
   onCellEnter(index){
-    this.gamePlay.showCellTooltip('', index);
+    let char = this.gamePlay.cells[index].querySelector('.character');
+    if(char){
+      this.gamePlay.showCellTooltip('', index);
+      char.append(tmpl.content.cloneNode(true));
+    }
   }
 
   onCellLeave(index) {
-    // TODO: react to mouse leave
+    let inf = this.gamePlay.cells[index].querySelector('.inf');
+    if(inf){
+      this.gamePlay.hideCellTooltip(index);
+      inf.replaceWith('');
+    }
   }
 }
