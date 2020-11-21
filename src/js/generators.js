@@ -24,7 +24,6 @@ export function generateTeam(allowedTypes, maxLevel, characterCount, team) {
   for(let i = 0; i < characterCount; i += 1){
     const character = generator.next();
     const random = arrPosition[getRandom(16)];
-
     result.push(new PositionedCharacter(character.value, random));
   }
 

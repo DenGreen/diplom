@@ -14,6 +14,8 @@ export default class GamePlay {
     this.newGameListeners = [];
     this.saveGameListeners = [];
     this.loadGameListeners = [];
+    this.arrChar = []; /** Персонажи из двух тим(Comp и Player). Используется для отрисовке персонажей, в GameController для 
+    вывода подсказки */
   }
 
   bindToDOM(container) {
@@ -63,8 +65,7 @@ export default class GamePlay {
     }
 
     this.cells = Array.from(this.boardEl.children);
-    
-    this.redrawPositions(generateTeam([Swordsman, Bowman, Magician], 2, 2, 'Player'));
+
   }
 
   /**
@@ -93,6 +94,13 @@ export default class GamePlay {
       charEl.appendChild(healthEl);
       cellEl.appendChild(charEl);
     }
+  }
+
+  /** Аргументы: типы игроков. Объединяет их в один массив. И передает redrawPositions для отрисовки */
+  charPositionPush(playerTeam, compTeam){
+    playerTeam.forEach(el => this.arrChar.push(el));
+    compTeam.forEach(el => this.arrChar.push(el));
+    this.redrawPositions(this.arrChar);
   }
 
   /**

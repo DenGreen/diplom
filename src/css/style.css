@@ -252,22 +252,3 @@ body {
     font-size: 1.5rem;
   }
 }
-
-.inf {
-  position: absolute;
-  display: flex;
-  bottom: -5px;
-  left: 50px;
-
-  background-color: #191919;
-}
-.unicode_color {
-  color: red;
-}
-.text {
-  margin: 0;
-  padding-top: 2px;
-  padding-right: 2px;
-  padding-left: 2px;
-  color: #ffffff;
-}

@@ -1,4 +1,4 @@
-import themes from './themes';
+import themes from "./themes";
 
 export default class GameController {
   constructor(gamePlay, stateService) {
@@ -20,19 +20,24 @@ export default class GameController {
     // TODO: react to click
   }
 
-  onCellEnter(index){
-    let char = this.gamePlay.cells[index].querySelector('.character');
-    if(char){
-      this.gamePlay.showCellTooltip('', index);
-      char.append(tmpl.content.cloneNode(true));
+  onCellEnter(index) {
+    if (this.gamePlay.cells[index].querySelector(".character")) {
+      let pers = null;
+      
+      this.gamePlay.arrChar.forEach((element) => {
+        if (element.position === index) {
+          pers = element.character;
+        }
+      });
+
+      this.gamePlay.showCellTooltip(
+        `🎖${pers.level} ⚔${pers.attack} 🛡${pers.defence} ❤${pers.health}`,
+        index
+      );
     }
   }
 
   onCellLeave(index) {
-    let inf = this.gamePlay.cells[index].querySelector('.inf');
-    if(inf){
-      this.gamePlay.hideCellTooltip(index);
-      inf.replaceWith('');
-    }
+    this.gamePlay.hideCellTooltip(index);
   }
 }
