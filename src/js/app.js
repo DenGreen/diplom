@@ -7,6 +7,7 @@ import GameStateService from './GameStateService';
 import {playerTeam, compTeam} from './Team';
 import { generateTeam } from './generators';
 import { Swordsman, Bowman, Magician, Daemon, Undead, Vampire } from './specialCharacter';
+import {gameState} from './GameState'
 
 const gamePlay = new GamePlay();
 gamePlay.bindToDOM(document.querySelector('#game-container'));
@@ -23,5 +24,9 @@ console.log(playerTeam)
 
 /** Отрисовка персонажей*/
 gamePlay.charPositionPush(playerTeam.team, compTeam.team);
+
+console.log(gameState.motion);
+gameState.changingMotion();
+console.log(gameState.motion);
 
 // don't write your code here

@@ -1,4 +1,4 @@
-export default class GameState {
+class GameState {
   constructor(){
     this.motion = 'Player'; /** Свойство хронящее очередь хода */
   }
@@ -13,3 +13,5 @@ export default class GameState {
     return null;
   } */
 }
+
+export const gameState = new GameState();
