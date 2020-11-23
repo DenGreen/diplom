@@ -1,6 +1,4 @@
 import { calcHealthLevel, calcTileType } from './utils';
-import { generateTeam } from './generators';
-import { Swordsman, Bowman, Magician, Daemon, Undead, Vampire } from './specialCharacter';
 
 export default class GamePlay {
   constructor() {
@@ -96,7 +94,7 @@ export default class GamePlay {
     }
   }
 
-  /** Аргументы: типы игроков. Объединяет их в один массив. И передает redrawPositions для отрисовки */
+  /** Аргументы: тимы игроков. Объединяет их в один массив. И передает redrawPositions для отрисовки */
   charPositionPush(playerTeam, compTeam){
     playerTeam.forEach(el => this.arrChar.push(el));
     compTeam.forEach(el => this.arrChar.push(el));
