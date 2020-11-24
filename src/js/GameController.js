@@ -42,9 +42,14 @@ export default class GameController {
   }
 
   onCellEnter(index) {
-    if (this.gamePlay.cells[index].querySelector(".character")) {
+    const char = this.gamePlay.cells[index].querySelector(".character");
+    if (char) {
       let pers = null;
-      this.gamePlay.setCursor('pointer');
+
+      if(char.classList.contains('bowman') || char.classList.contains('swordsman') || char.classList.contains('magician')){
+        this.gamePlay.setCursor('pointer');
+      }
+
       this.gamePlay.arrChar.forEach((element) => {
         if (element.position === index) {
           pers = element.character;
@@ -64,9 +69,17 @@ export default class GameController {
     if (this.arrRadius !== null) {
         for(let arr of this.arrRadius) {
           if(arr === index) {
+            const charComp = this.gamePlay.cells[index].querySelector(".character")
             this.gamePlay.setCursor('pointer');
             this.gamePlay.selectCell(index, 'green');
             this.indexTornSelect = index;
+
+            if(charComp) {
+              if(charComp.classList.contains('daemon') || charComp.classList.contains('undead') || charComp.classList.contains('vampire')) {
+                this.gamePlay.selectCell(index, 'red');
+                this.gamePlay.setCursor('crosshair');
+              }
+            }
           }
         }
     }
