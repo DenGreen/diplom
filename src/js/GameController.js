@@ -75,6 +75,6 @@ export default class GameController {
   onCellLeave(index) {
     this.gamePlay.setCursor('auto')
     this.gamePlay.hideCellTooltip(index);
-    if (this.indexTornSelect !== null) this.gamePlay.deselectCell(this.indexTornSelect);
+    if (this.indexTornSelect !== null) this.gamePlay.deselectTurn(this.indexTornSelect);
   }
 }

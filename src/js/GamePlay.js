@@ -256,6 +256,10 @@ export default class GamePlay {
     );
   }
 
+  deselectTurn(index) {
+    this.cells[index].classList.remove("selected");
+  }
+
   showCellTooltip(message, index) {
     this.cells[index].title = message;
   }
