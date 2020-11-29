@@ -1,4 +1,5 @@
 import themes from "./themes";
+import {playerTeam, compTeam} from './Team';
 
 export default class GameController {
   constructor(gamePlay, stateService) {
@@ -26,19 +27,37 @@ export default class GameController {
 
   onCellClick(index) {
     const char = this.gamePlay.cells[index].querySelector(".character");
-    if(char.classList.contains('bowman') || char.classList.contains('swordsman') || char.classList.contains('magician')){
-      if (this.indexSelect !== null) this.gamePlay.deselectCell(this.indexSelect);
 
-
-      this.arrRadius = this.gamePlay.radiusTurn(index); /** Тут хранятся все ячейки на которые может пойти персонаж */
-
-      this.gamePlay.setCursor('pointer');
-
-      this.indexSelect = index;
-      this.gamePlay.selectCell(index);
-    } else {
-      this.gamePlay.showError('Нельзя выбрать персонажей противника');
+    try {
+      if(char.classList.contains('bowman') || char.classList.contains('swordsman') || char.classList.contains('magician')){
+        if (this.indexSelect !== null) this.gamePlay.deselectCell(this.indexSelect);
+  
+        this.arrRadius = this.gamePlay.radiusTurn(index); /** Тут хранятся все ячейки на которые может пойти персонаж */
+  
+        this.gamePlay.setCursor('pointer');
+        
+        this.indexSelect = index;
+        this.gamePlay.selectCell(index);
+      } else {
+        this.arrRadius.forEach(e => {
+          for(let i = 0; i < compTeam.team.length; i += 1) {
+            if(e === index && e === compTeam.team[i].position) {
+              console.log('atack');
+            }
+          }
+        })
+      }
+    } catch (err) {
+      /** Если в ячейке нет персонажа, то делаем ход */
+      for(let i = 0; i < playerTeam.team.length; i += 1){
+        if(playerTeam.team[i].position === this.indexSelect){
+          playerTeam.team[i].position = index;
+          this.gamePlay.deselectCell(this.indexSelect);
+          this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
+        }
+      }
     }
+
   }
 
   onCellEnter(index) {

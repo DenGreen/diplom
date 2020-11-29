@@ -108,6 +108,7 @@ export default class GamePlay {
 
   /** Аргументы: тимы игроков. Объединяет их в один массив. И передает redrawPositions для отрисовки */
   charPositionPush(playerTeam, compTeam) {
+    if(this.arrChar.length > 0) this.arrChar.splice(0, this.arrChar.length);
     playerTeam.forEach((el) => this.arrChar.push(el));
     compTeam.forEach((el) => this.arrChar.push(el));
     this.redrawPositions(this.arrChar);
@@ -115,7 +116,7 @@ export default class GamePlay {
 
   /** Метод возврощает допустимые ходы для персонажа */
 
-  radiusTurn(index, strokeLength = 5) {
+  radiusTurn(index, strokeLength = 1) {
     const rez = [];
     const row = Math.floor(index / 8) + 1;
     const col = Math.floor(index % 8) + 1;
