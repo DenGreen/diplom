@@ -25,6 +25,4 @@ console.log(playerTeam)
 /** Отрисовка персонажей*/
 gamePlay.charPositionPush(playerTeam.team, compTeam.team);
 
-gameState.changingMotion();
-
 // don't write your code here
