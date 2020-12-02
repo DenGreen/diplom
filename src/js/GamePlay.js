@@ -116,7 +116,7 @@ export default class GamePlay {
 
   /** Метод возврощает допустимые ходы для персонажа */
 
-  radiusTurn(index, strokeLength = 4) {
+  radiusTurn(index, strokeLength = 2) {
     const rez = [];
     const row = Math.floor(index / 8) + 1;
     const col = Math.floor(index % 8) + 1;

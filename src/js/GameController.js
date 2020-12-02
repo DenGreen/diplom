@@ -48,6 +48,8 @@ export default class GameController {
           this.gamePlay.selectCell(index);
         } else {
           this.attackPers(index, gameState.motion);
+          gameState.changingMotion();
+          this.computerMove();
           /** тут будет вызов функции которая передаст управление компьютеру, и рандомно выберет персанажа для атаки или хода */
         }
       } catch (err) {
@@ -58,6 +60,8 @@ export default class GameController {
         this.gamePlay.deselectCell(this.indexSelect);
         this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
 
+        gameState.changingMotion();
+        this.computerMove();
         /** тут будет вызов функции которая передаст управление компьютеру, и рандомно выберет персанажа для атаки или хода */
 
         /*for(let i = 0; i < playerTeam.team.length; i += 1){
@@ -163,5 +167,35 @@ export default class GameController {
     this.gamePlay.hideCellTooltip(index);
     if (this.indexTornSelect !== null)
       this.gamePlay.deselectTurn(this.indexTornSelect);
+  }
+
+  computerMove() {
+    let random = Math.floor(Math.random() * compTeam.team.length);
+    let positionComp = compTeam.team[random];
+    let persPlayer = null;
+
+    this.indexSelect = positionComp.position;
+    this.arrRadius = this.gamePlay.radiusTurn(positionComp.position);
+    
+    for(let arr of this.arrRadius) {
+      for(let arrPers of playerTeam.team) {
+        if(arr === arrPers.position) {
+          return persPlayer = arrPers;
+        }
+      }
+    }
+
+    if(persPlayer) {
+      this.attackPers(persPlayer.position, gameState.motion);
+      gameState.changingMotion();
+      this.gamePlay.deselectCell(this.indexSelect);
+    } else {
+      let randomTurn = Math.floor(Math.random() * this.arrRadius.length);
+      positionComp.position = this.arrRadius[randomTurn];
+      this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
+      gameState.changingMotion();
+
+      this.gamePlay.deselectCell(this.indexSelect);
+    }
   }
 }
