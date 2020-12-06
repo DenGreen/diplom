@@ -7,7 +7,9 @@ export default class GameController {
     this.gamePlay = gamePlay;
     this.stateService = stateService;
     this.indexSelect = null; /** хранится выбранный персонаж */
+    this.indexSelectComp = null;
     this.arrRadius = null;
+    this.arrRadiusComp = null;
     this.indexTornSelect = null;
   }
 
@@ -26,58 +28,55 @@ export default class GameController {
     // TODO: load saved stated from stateService
   }
 
-  onCellClick(index) {
-      const char = this.gamePlay.cells[index].querySelector(".character");
+  async onCellClick(index) {
+    const char = this.gamePlay.cells[index].querySelector(".character");
 
-      try {
-        if (
-          char.classList.contains("bowman") ||
-          char.classList.contains("swordsman") ||
-          char.classList.contains("magician")
-        ) { /** эту часть кода вынести в функцию */
-          if (this.indexSelect !== null)
-            this.gamePlay.deselectCell(this.indexSelect);
+    if (!char) {
+      let pers = this.searchPers(this.indexSelect, gameState.motion);
+      pers.position = index;
+      this.gamePlay.deselectCell(this.indexSelect);
+      this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
 
-          this.arrRadius = this.gamePlay.radiusTurn(
-            index
-          ); /** Тут хранятся все ячейки на которые может пойти персонаж */
-
-          this.gamePlay.setCursor("pointer");
-
-          this.indexSelect = index;
-          this.gamePlay.selectCell(index);
-        } else {
-          this.attackPers(index, gameState.motion);
-          gameState.changingMotion();
-          this.computerMove();
-          /** тут будет вызов функции которая передаст управление компьютеру, и рандомно выберет персанажа для атаки или хода */
-        }
-      } catch (err) {
-        /** Если в ячейке нет персонажа, то делаем ход */
-
-        let pers = this.searchPers(this.indexSelect, gameState.motion);
-        pers.position = index;
+      gameState.changingMotion();
+      this.computerMove();
+    } else if (
+      char.classList.contains("bowman") ||
+      char.classList.contains("swordsman") ||
+      char.classList.contains("magician")
+    ) {
+      /** эту часть кода вынести в функцию */
+      if (this.indexSelect !== null)
         this.gamePlay.deselectCell(this.indexSelect);
-        this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
 
-        gameState.changingMotion();
-        this.computerMove();
-        /** тут будет вызов функции которая передаст управление компьютеру, и рандомно выберет персанажа для атаки или хода */
+      this.arrRadius = this.gamePlay.radiusTurn(
+        index
+      ); /** Тут хранятся все ячейки на которые может пойти персонаж */
 
-        /*for(let i = 0; i < playerTeam.team.length; i += 1){
-        if(playerTeam.team[i].position === this.indexSelect){
-          playerTeam.team[i].position = index;
-          this.gamePlay.deselectCell(this.indexSelect);
-          this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
-        }
-      }*/
-      }
+      this.gamePlay.setCursor("pointer");
+
+      this.indexSelect = index;
+      this.gamePlay.selectCell(index);
+    } else {
+      await this.attackPers(index, gameState.motion);
+      gameState.changingMotion();
+      this.computerMove();
+      /** тут будет вызов функции которая передаст управление компьютеру, и рандомно выберет персанажа для атаки или хода */
+    }
   }
 
   /** Атака зависит от очереди хода */
   async attackPers(index, gameState) {
-    let state = gameState === "Comp" ? 'Player' : "Comp";
-    let persAttacker = this.searchPers(this.indexSelect, gameState);
+    let state = null;
+    let persAttacker = null;
+
+    if (gameState === "Player") {
+      persAttacker = this.searchPers(this.indexSelect, gameState);
+      state = "Comp";
+    } else {
+      persAttacker = this.searchPers(this.indexSelectComp, gameState);
+      state = "Player";
+    }
+
     let persDefence = this.searchPers(index, state);
 
     let damage = Math.max(
@@ -86,9 +85,12 @@ export default class GameController {
     );
 
     await this.gamePlay.showDamage(index, damage);
-
-    persDefence.character.health -= damage;
-    this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
+    
+    return new Promise((resolve) => {
+      persDefence.character.health -= damage;
+      this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
+      resolve();
+    });
   }
 
   /**Поиск персонажа по индексу его позиции */
@@ -174,28 +176,27 @@ export default class GameController {
     let positionComp = compTeam.team[random];
     let persPlayer = null;
 
-    this.indexSelect = positionComp.position;
-    this.arrRadius = this.gamePlay.radiusTurn(positionComp.position);
-    
-    for(let arr of this.arrRadius) {
-      for(let arrPers of playerTeam.team) {
-        if(arr === arrPers.position) {
-          return persPlayer = arrPers;
+    this.indexSelectComp = positionComp.position;
+    this.arrRadiusComp = this.gamePlay.radiusTurn(positionComp.position);
+
+    for (let arr of this.arrRadiusComp) {
+      for (let arrPers of playerTeam.team) {
+        if (arr === arrPers.position) {
+          persPlayer = arrPers;
         }
       }
     }
 
-    if(persPlayer) {
+    if (persPlayer) {
       this.attackPers(persPlayer.position, gameState.motion);
-      gameState.changingMotion();
-      this.gamePlay.deselectCell(this.indexSelect);
-    } else {
-      let randomTurn = Math.floor(Math.random() * this.arrRadius.length);
-      positionComp.position = this.arrRadius[randomTurn];
-      this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
-      gameState.changingMotion();
 
-      this.gamePlay.deselectCell(this.indexSelect);
+      gameState.changingMotion();
+    } else {
+      let randomTurn = Math.floor(Math.random() * this.arrRadiusComp.length);
+      positionComp.position = this.arrRadiusComp[randomTurn];
+      this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
+
+      gameState.changingMotion();
     }
   }
 }
