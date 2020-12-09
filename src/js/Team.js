@@ -1,5 +1,7 @@
 class Team {
-
+    constructor(){
+        this.team = [];
+    }
 }
 
 export const playerTeam = new Team();

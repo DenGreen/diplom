@@ -1,6 +1,8 @@
 import themes from "./themes";
 import { playerTeam, compTeam } from "./Team";
 import { gameState } from "./GameState";
+import { generateTeam } from './generators';
+import { Swordsman, Bowman, Magician, Daemon, Undead, Vampire } from './specialCharacter';
 
 export default class GameController {
   constructor(gamePlay, stateService) {
@@ -18,11 +20,16 @@ export default class GameController {
     const onCellLeaveBind = this.onCellLeave.bind(this);
     const onCellClickBind = this.onCellClick.bind(this);
     const onTurnEnterBind = this.onTurnEnter.bind(this);
-    this.gamePlay.drawUi(themes.prairie);
+    this.gamePlay.drawUi(themes['prairie']);
+    
     this.gamePlay.addCellEnterListener(onTurnEnterBind);
     this.gamePlay.addCellEnterListener(onCellEnterBind);
     this.gamePlay.addCellLeaveListener(onCellLeaveBind);
     this.gamePlay.addCellClickListener(onCellClickBind);
+
+    generateTeam([Swordsman, Bowman, Magician], 1, 2, 'Player');
+    generateTeam([Daemon, Undead, Vampire], 1, 2, 'Comp');
+    this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
 
     // TODO: add event listeners to gamePlay events
     // TODO: load saved stated from stateService
@@ -89,6 +96,7 @@ export default class GameController {
     return new Promise((resolve) => {
       persDefence.character.health -= damage;
       this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
+      this.healthCheck();
       resolve();
     });
   }
@@ -172,7 +180,8 @@ export default class GameController {
   }
 
   computerMove() {
-    let random = Math.floor(Math.random() * compTeam.team.length);
+    try {
+      let random = Math.floor(Math.random() * compTeam.team.length);
     let positionComp = compTeam.team[random];
     let persPlayer = null;
 
@@ -197,6 +206,73 @@ export default class GameController {
       this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
 
       gameState.changingMotion();
+    }
+    } catch {
+
+    }
+    
+  }
+
+  healthCheck() {
+    let charPlayer = playerTeam.team;
+    let charComp = compTeam.team;
+    for(let i = 0; i <= charPlayer.length - 1; i += 1) {
+      if(charPlayer[i].character.health <= 0) {
+        charPlayer.splice(i, 1);
+        this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
+        this.teamCheck();
+      }
+    }
+    for(let i = 0; i <= charComp.length - 1; i += 1) {
+      if(charComp[i].character.health <= 0) {
+        charComp.splice(i, 1);
+        this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
+        this.teamCheck();
+      }
+    }
+  }
+
+  teamCheck() {
+    if(playerTeam.team.length === 0) {
+      alert('Победил комьпютер');
+    } else if(compTeam.team.length === 0) {
+      this.levelUpGenerator().next();
+    }
+  }
+
+  *levelUpGenerator() {
+    yield this.levelUp(themes.desert);
+    yield this.levelUp(themes.arctic);
+    yield this.levelUp(themes.mountain);
+  }
+
+  levelUp(tm){
+    this.gamePlay.drawUi(tm);
+
+    for(let char of playerTeam.team) {
+      char.character.attack = Math.max(char.character.attack, char.character.attack * (1.8 - char.character.health) / 100);
+      char.character.level += 1;
+      char.character.health += 80;
+      if(char.character.health >= 100) {
+        char.character.health = 100;
+      }
+    }
+
+    switch(tm) {
+      case 'desert':
+        generateTeam([Swordsman, Bowman, Magician], 1, 1, 'Player');
+        generateTeam([Daemon, Undead, Vampire], 2, playerTeam.team.length, 'Comp');
+        break;
+    
+      case 'arctic':
+        generateTeam([Swordsman, Bowman, Magician], 1, 1, 'Player');
+        generateTeam([Daemon, Undead, Vampire], 2, playerTeam.team.length, 'Comp');
+        break;
+    
+      case 'mountain':
+        generateTeam([Swordsman, Bowman, Magician], 1, 1, 'Player');
+        generateTeam([Daemon, Undead, Vampire], 2, playerTeam.team.length, 'Comp');
+        break;
     }
   }
 }
