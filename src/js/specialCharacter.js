@@ -3,7 +3,7 @@ import Character from './Character';
 export class Swordsman extends Character {
     constructor(level) {
         super(level, 'swordsman')
-        this.attack = 40;
+        this.attack = 100;
         this.defence = 10;
     }
 }

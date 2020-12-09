@@ -248,7 +248,7 @@ export default class GameController {
 
   levelUp(tm){
     this.gamePlay.drawUi(tm);
-
+    
     for(let char of playerTeam.team) {
       char.character.attack = Math.max(char.character.attack, char.character.attack * (1.8 - char.character.health) / 100);
       char.character.level += 1;
@@ -265,13 +265,13 @@ export default class GameController {
         break;
     
       case 'arctic':
-        generateTeam([Swordsman, Bowman, Magician], 1, 1, 'Player');
-        generateTeam([Daemon, Undead, Vampire], 2, playerTeam.team.length, 'Comp');
+        generateTeam([Swordsman, Bowman, Magician, Bowman], 2, 1, 'Player');
+        generateTeam([Daemon, Undead, Vampire, Vampire], 3, playerTeam.team.length, 'Comp');
         break;
     
       case 'mountain':
-        generateTeam([Swordsman, Bowman, Magician], 1, 1, 'Player');
-        generateTeam([Daemon, Undead, Vampire], 2, playerTeam.team.length, 'Comp');
+        generateTeam([Swordsman, Bowman, Magician, Swordsman, Bowman, Magician], 3, 1, 'Player');
+        generateTeam([Daemon, Undead, Vampire, Daemon, Undead, Vampire], 4, playerTeam.team.length, 'Comp');
         break;
     }
   }
