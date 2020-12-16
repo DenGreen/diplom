@@ -13,6 +13,7 @@ export default class GameController {
     this.arrRadius = null;
     this.arrRadiusComp = null;
     this.indexTornSelect = null;
+    this.level = 1;
   }
 
   init() {
@@ -51,22 +52,28 @@ export default class GameController {
       char.classList.contains("swordsman") ||
       char.classList.contains("magician")
     ) {
-      /** эту часть кода вынести в функцию */
+      const rangeTravel = this.searchPers(index, gameState.motion).character.rangeTravel;
+
       if (this.indexSelect !== null)
         this.gamePlay.deselectCell(this.indexSelect);
-
-      this.arrRadius = this.gamePlay.radiusTurn(
-        index
-      ); /** Тут хранятся все ячейки на которые может пойти персонаж */
+      this.arrRadius = this.gamePlay.radiusTurn(index, rangeTravel); /** Тут хранятся все ячейки на которые может пойти персонаж */
 
       this.gamePlay.setCursor("pointer");
 
       this.indexSelect = index;
       this.gamePlay.selectCell(index);
     } else {
-      await this.attackPers(index, gameState.motion);
-      gameState.changingMotion();
-      this.computerMove();
+      let attackRange = this.searchPers(this.indexSelect, gameState.motion).character.attackRange;
+      let attackRadius = this.gamePlay.radiusTurn(this.indexSelect, attackRange);
+      for (let arr of attackRadius) {
+        for (let arrPers of compTeam.team) {
+          if (arr === arrPers.position) {
+            await this.attackPers(index, gameState.motion);
+            gameState.changingMotion();
+            this.computerMove();
+          }
+        }
+      }
       /** тут будет вызов функции которая передаст управление компьютеру, и рандомно выберет персанажа для атаки или хода */
     }
   }
@@ -169,7 +176,29 @@ export default class GameController {
           }
         }
       }
-    }
+    } 
+    /**let attackRange = this.searchPers(this.indexSelect, gameState.motion).character.attackRange;
+    let attackRadius = this.gamePlay.radiusTurn(this.indexSelect, attackRange);
+    
+      for (let arr of attackRadius) {
+        for (let arrPers of compTeam.team) {
+          if (arr === arrPers.position) {
+            const charComp = this.gamePlay.cells[index].querySelector(
+              ".character"
+            );
+            if (charComp) {
+              if (
+                charComp.classList.contains("daemon") ||
+                charComp.classList.contains("undead") ||
+                charComp.classList.contains("vampire")
+              ) {
+                this.gamePlay.selectCell(index, "red");
+                this.gamePlay.setCursor("crosshair");
+              }
+            }
+          }
+        }
+      } */
   }
 
   onCellLeave(index) {
@@ -186,7 +215,7 @@ export default class GameController {
     let persPlayer = null;
 
     this.indexSelectComp = positionComp.position;
-    this.arrRadiusComp = this.gamePlay.radiusTurn(positionComp.position);
+    this.arrRadiusComp = this.gamePlay.radiusTurn(positionComp.position, positionComp.character.attackRange);
 
     for (let arr of this.arrRadiusComp) {
       for (let arrPers of playerTeam.team) {
@@ -236,14 +265,19 @@ export default class GameController {
     if(playerTeam.team.length === 0) {
       alert('Победил комьпютер');
     } else if(compTeam.team.length === 0) {
-      this.levelUpGenerator().next();
+      this.level += 1;
+      switch(this.level) {
+        case 2:
+          this.levelUp(themes.desert);
+          break;
+        case 3:
+          this.levelUp(themes.arctic);
+          break;
+        case 4:
+          this.levelUp(themes.mountain);
+          break;
+      }
     }
-  }
-
-  *levelUpGenerator() {
-    yield this.levelUp(themes.desert);
-    yield this.levelUp(themes.arctic);
-    yield this.levelUp(themes.mountain);
   }
 
   levelUp(tm){
@@ -262,16 +296,19 @@ export default class GameController {
       case 'desert':
         generateTeam([Swordsman, Bowman, Magician], 1, 1, 'Player');
         generateTeam([Daemon, Undead, Vampire], 2, playerTeam.team.length, 'Comp');
+        console.log(1)
         break;
     
       case 'arctic':
-        generateTeam([Swordsman, Bowman, Magician, Bowman], 2, 1, 'Player');
-        generateTeam([Daemon, Undead, Vampire, Vampire], 3, playerTeam.team.length, 'Comp');
+        generateTeam([Swordsman, Bowman, Magician], 2, 1, 'Player');
+        generateTeam([Daemon, Undead, Vampire, Daemon, Undead, Vampire], 3, playerTeam.team.length, 'Comp');
+        console.log(2)
         break;
     
       case 'mountain':
         generateTeam([Swordsman, Bowman, Magician, Swordsman, Bowman, Magician], 3, 1, 'Player');
         generateTeam([Daemon, Undead, Vampire, Daemon, Undead, Vampire], 4, playerTeam.team.length, 'Comp');
+        console.log(3)
         break;
     }
   }

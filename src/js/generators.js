@@ -2,8 +2,7 @@ import PositionedCharacter from './PositionedCharacter';
 import {playerTeam, compTeam} from './Team';
 
 export function* characterGenerator(allowedTypes, maxLevel) {
-  shuffle(allowedTypes);
-  for(let i = 0; i< allowedTypes.length; i += 1){
+  for(let i = 0; i < allowedTypes.length; i += 1){
     const level = Math.floor(Math.random() * (Math.floor(maxLevel) - Math.ceil(1) + 1)) + Math.ceil(1);
 
     yield new allowedTypes[i](level);
@@ -11,18 +10,20 @@ export function* characterGenerator(allowedTypes, maxLevel) {
 }
 
 export function generateTeam(allowedTypes, maxLevel, characterCount, team) {
+  shuffle(allowedTypes);
   const generator = characterGenerator(allowedTypes, maxLevel);
+
   const arrPosition = generatePosition(team);
 
   for(let i = 0; i < characterCount; i += 1){
     const character = generator.next();
     const random = arrPosition[getRandom(16)];
-    console.log('Генерируеммый персонаж', character)
-    console.log('Кол-во персонажей игрока', playerTeam.team.length)
-    if(team === 'Player') {
-      playerTeam.team.push(new PositionedCharacter(character.value, random));
-    } else {
-      compTeam.team.push(new PositionedCharacter(character.value, random));
+    if(!character.done) {
+      if(team === 'Player') {
+        playerTeam.team.push(new PositionedCharacter(character.value, random));
+      } else {
+        compTeam.team.push(new PositionedCharacter(character.value, random));
+      }
     }
   }
 
