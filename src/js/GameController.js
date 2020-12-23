@@ -1,8 +1,15 @@
 import themes from "./themes";
 import { playerTeam, compTeam } from "./Team";
 import { gameState } from "./GameState";
-import { generateTeam } from './generators';
-import { Swordsman, Bowman, Magician, Daemon, Undead, Vampire } from './specialCharacter';
+import { generateTeam } from "./generators";
+import {
+  Swordsman,
+  Bowman,
+  Magician,
+  Daemon,
+  Undead,
+  Vampire,
+} from "./specialCharacter";
 
 export default class GameController {
   constructor(gamePlay, stateService) {
@@ -14,6 +21,7 @@ export default class GameController {
     this.arrRadiusComp = null;
     this.indexTornSelect = null;
     this.level = 1;
+    this.indexTargetAttac = null;
   }
 
   init() {
@@ -21,15 +29,15 @@ export default class GameController {
     const onCellLeaveBind = this.onCellLeave.bind(this);
     const onCellClickBind = this.onCellClick.bind(this);
     const onTurnEnterBind = this.onTurnEnter.bind(this);
-    this.gamePlay.drawUi(themes['prairie']);
-    
+    this.gamePlay.drawUi(themes["prairie"]);
+
     this.gamePlay.addCellEnterListener(onTurnEnterBind);
     this.gamePlay.addCellEnterListener(onCellEnterBind);
     this.gamePlay.addCellLeaveListener(onCellLeaveBind);
     this.gamePlay.addCellClickListener(onCellClickBind);
 
-    generateTeam([Swordsman, Bowman, Magician], 1, 2, 'Player');
-    generateTeam([Daemon, Undead, Vampire], 1, 2, 'Comp');
+    generateTeam([Swordsman, Bowman, Magician], 1, 2, "Player");
+    generateTeam([Daemon, Undead, Vampire], 1, 2, "Comp");
     this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
 
     // TODO: add event listeners to gamePlay events
@@ -52,19 +60,27 @@ export default class GameController {
       char.classList.contains("swordsman") ||
       char.classList.contains("magician")
     ) {
-      const rangeTravel = this.searchPers(index, gameState.motion).character.rangeTravel;
+      const rangeTravel = this.searchPers(index, gameState.motion).character
+        .rangeTravel;
 
       if (this.indexSelect !== null)
         this.gamePlay.deselectCell(this.indexSelect);
-      this.arrRadius = this.gamePlay.radiusTurn(index, rangeTravel); /** Тут хранятся все ячейки на которые может пойти персонаж */
+      this.arrRadius = this.gamePlay.radiusTurn(
+        index,
+        rangeTravel
+      ); /** Тут хранятся все ячейки на которые может пойти персонаж */
 
       this.gamePlay.setCursor("pointer");
 
       this.indexSelect = index;
       this.gamePlay.selectCell(index);
     } else {
-      let attackRange = this.searchPers(this.indexSelect, gameState.motion).character.attackRange;
-      let attackRadius = this.gamePlay.radiusTurn(this.indexSelect, attackRange);
+      let attackRange = this.searchPers(this.indexSelect, gameState.motion)
+        .character.attackRange;
+      let attackRadius = this.gamePlay.radiusTurn(
+        this.indexSelect,
+        attackRange
+      );
       for (let arr of attackRadius) {
         for (let arrPers of compTeam.team) {
           if (arr === arrPers.position) {
@@ -99,7 +115,7 @@ export default class GameController {
     );
 
     await this.gamePlay.showDamage(index, damage);
-    
+
     return new Promise((resolve) => {
       persDefence.character.health -= damage;
       this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
@@ -151,54 +167,33 @@ export default class GameController {
     }
   }
 
-  /** Метод использует окружение выбранного персонажа, для отрисовки разрешенных ходов */
+  /** Метод использует окружение выбранного персонажа, для отрисовки разрешенных ходов и разрешенных радиусов атаки*/
 
   onTurnEnter(index) {
-    if (this.arrRadius !== null) {
+    if (this.indexSelect) {
       for (let arr of this.arrRadius) {
         if (arr === index) {
-          const charComp = this.gamePlay.cells[index].querySelector(
-            ".character"
-          );
           this.gamePlay.setCursor("pointer");
           this.gamePlay.selectCell(index, "green");
           this.indexTornSelect = index;
-
-          if (charComp) {
-            if (
-              charComp.classList.contains("daemon") ||
-              charComp.classList.contains("undead") ||
-              charComp.classList.contains("vampire")
-            ) {
-              this.gamePlay.selectCell(index, "red");
-              this.gamePlay.setCursor("crosshair");
-            }
+        }
+      }
+      for (let arrCharComp of compTeam.team) {
+        if (arrCharComp.position === index) {
+          let attackRange = this.searchPers(this.indexSelect, gameState.motion)
+            .character.attackRange;
+          let attackRadius = this.gamePlay.radiusTurn(
+            this.indexSelect,
+            attackRange
+          );
+          if (attackRadius.indexOf(index) != -1) {
+            this.indexTargetAttac = index;
+            this.gamePlay.selectCell(index, "red");
+            this.gamePlay.setCursor("crosshair");
           }
         }
       }
-    } 
-    /**let attackRange = this.searchPers(this.indexSelect, gameState.motion).character.attackRange;
-    let attackRadius = this.gamePlay.radiusTurn(this.indexSelect, attackRange);
-    
-      for (let arr of attackRadius) {
-        for (let arrPers of compTeam.team) {
-          if (arr === arrPers.position) {
-            const charComp = this.gamePlay.cells[index].querySelector(
-              ".character"
-            );
-            if (charComp) {
-              if (
-                charComp.classList.contains("daemon") ||
-                charComp.classList.contains("undead") ||
-                charComp.classList.contains("vampire")
-              ) {
-                this.gamePlay.selectCell(index, "red");
-                this.gamePlay.setCursor("crosshair");
-              }
-            }
-          }
-        }
-      } */
+    }
   }
 
   onCellLeave(index) {
@@ -206,54 +201,56 @@ export default class GameController {
     this.gamePlay.hideCellTooltip(index);
     if (this.indexTornSelect !== null)
       this.gamePlay.deselectTurn(this.indexTornSelect);
+    if (this.indexTargetAttac !== null)
+      this.gamePlay.deselectTurn(this.indexTargetAttac);
   }
 
   computerMove() {
     try {
       let random = Math.floor(Math.random() * compTeam.team.length);
-    let positionComp = compTeam.team[random];
-    let persPlayer = null;
+      let positionComp = compTeam.team[random];
+      let persPlayer = null;
 
-    this.indexSelectComp = positionComp.position;
-    this.arrRadiusComp = this.gamePlay.radiusTurn(positionComp.position, positionComp.character.attackRange);
+      this.indexSelectComp = positionComp.position;
+      this.arrRadiusComp = this.gamePlay.radiusTurn(
+        positionComp.position,
+        positionComp.character.attackRange
+      );
 
-    for (let arr of this.arrRadiusComp) {
-      for (let arrPers of playerTeam.team) {
-        if (arr === arrPers.position) {
-          persPlayer = arrPers;
+      for (let arr of this.arrRadiusComp) {
+        for (let arrPers of playerTeam.team) {
+          if (arr === arrPers.position) {
+            persPlayer = arrPers;
+          }
         }
       }
-    }
 
-    if (persPlayer) {
-      this.attackPers(persPlayer.position, gameState.motion);
+      if (persPlayer) {
+        this.attackPers(persPlayer.position, gameState.motion);
 
-      gameState.changingMotion();
-    } else {
-      let randomTurn = Math.floor(Math.random() * this.arrRadiusComp.length);
-      positionComp.position = this.arrRadiusComp[randomTurn];
-      this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
+        gameState.changingMotion();
+      } else {
+        let randomTurn = Math.floor(Math.random() * this.arrRadiusComp.length);
+        positionComp.position = this.arrRadiusComp[randomTurn];
+        this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
 
-      gameState.changingMotion();
-    }
-    } catch {
-
-    }
-    
+        gameState.changingMotion();
+      }
+    } catch {}
   }
 
   healthCheck() {
     let charPlayer = playerTeam.team;
     let charComp = compTeam.team;
-    for(let i = 0; i <= charPlayer.length - 1; i += 1) {
-      if(charPlayer[i].character.health <= 0) {
+    for (let i = 0; i <= charPlayer.length - 1; i += 1) {
+      if (charPlayer[i].character.health <= 0) {
         charPlayer.splice(i, 1);
         this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
         this.teamCheck();
       }
     }
-    for(let i = 0; i <= charComp.length - 1; i += 1) {
-      if(charComp[i].character.health <= 0) {
+    for (let i = 0; i <= charComp.length - 1; i += 1) {
+      if (charComp[i].character.health <= 0) {
         charComp.splice(i, 1);
         this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
         this.teamCheck();
@@ -262,11 +259,11 @@ export default class GameController {
   }
 
   teamCheck() {
-    if(playerTeam.team.length === 0) {
-      alert('Победил комьпютер');
-    } else if(compTeam.team.length === 0) {
+    if (playerTeam.team.length === 0) {
+      alert("Победил комьпютер");
+    } else if (compTeam.team.length === 0) {
       this.level += 1;
-      switch(this.level) {
+      switch (this.level) {
         case 2:
           this.levelUp(themes.desert);
           break;
@@ -280,35 +277,58 @@ export default class GameController {
     }
   }
 
-  levelUp(tm){
+  levelUp(tm) {
     this.gamePlay.drawUi(tm);
-    
-    for(let char of playerTeam.team) {
-      char.character.attack = Math.max(char.character.attack, char.character.attack * (1.8 - char.character.health) / 100);
+
+    for (let char of playerTeam.team) {
+      char.character.attack = Math.max(
+        char.character.attack,
+        (char.character.attack * (1.8 - char.character.health)) / 100
+      );
       char.character.level += 1;
       char.character.health += 80;
-      if(char.character.health >= 100) {
+      if (char.character.health >= 100) {
         char.character.health = 100;
       }
     }
 
-    switch(tm) {
-      case 'desert':
-        generateTeam([Swordsman, Bowman, Magician], 1, 1, 'Player');
-        generateTeam([Daemon, Undead, Vampire], 2, playerTeam.team.length, 'Comp');
-        console.log(1)
+    switch (tm) {
+      case "desert":
+        generateTeam([Swordsman, Bowman, Magician], 1, 1, "Player");
+        generateTeam(
+          [Daemon, Undead, Vampire],
+          2,
+          playerTeam.team.length,
+          "Comp"
+        );
+        console.log(1);
         break;
-    
-      case 'arctic':
-        generateTeam([Swordsman, Bowman, Magician], 2, 1, 'Player');
-        generateTeam([Daemon, Undead, Vampire, Daemon, Undead, Vampire], 3, playerTeam.team.length, 'Comp');
-        console.log(2)
+
+      case "arctic":
+        generateTeam([Swordsman, Bowman, Magician], 2, 1, "Player");
+        generateTeam(
+          [Daemon, Undead, Vampire, Daemon, Undead, Vampire],
+          3,
+          playerTeam.team.length,
+          "Comp"
+        );
+        console.log(2);
         break;
-    
-      case 'mountain':
-        generateTeam([Swordsman, Bowman, Magician, Swordsman, Bowman, Magician], 3, 1, 'Player');
-        generateTeam([Daemon, Undead, Vampire, Daemon, Undead, Vampire], 4, playerTeam.team.length, 'Comp');
-        console.log(3)
+
+      case "mountain":
+        generateTeam(
+          [Swordsman, Bowman, Magician, Swordsman, Bowman, Magician],
+          3,
+          1,
+          "Player"
+        );
+        generateTeam(
+          [Daemon, Undead, Vampire, Daemon, Undead, Vampire],
+          4,
+          playerTeam.team.length,
+          "Comp"
+        );
+        console.log(3);
         break;
     }
   }
