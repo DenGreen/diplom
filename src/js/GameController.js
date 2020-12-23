@@ -49,12 +49,14 @@ export default class GameController {
 
     if (!char) {
       let pers = this.searchPers(this.indexSelect, gameState.motion);
-      pers.position = index;
-      this.gamePlay.deselectCell(this.indexSelect);
-      this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
+      if (this.arrRadius.indexOf(index) !== -1) {
+        pers.position = index;
+        this.gamePlay.deselectCell(this.indexSelect);
+        this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
 
-      gameState.changingMotion();
-      this.computerMove();
+        gameState.changingMotion();
+        this.computerMove();
+      }
     } else if (
       char.classList.contains("bowman") ||
       char.classList.contains("swordsman") ||
@@ -301,7 +303,6 @@ export default class GameController {
           playerTeam.team.length,
           "Comp"
         );
-        console.log(1);
         break;
 
       case "arctic":
@@ -312,7 +313,6 @@ export default class GameController {
           playerTeam.team.length,
           "Comp"
         );
-        console.log(2);
         break;
 
       case "mountain":
@@ -328,7 +328,6 @@ export default class GameController {
           playerTeam.team.length,
           "Comp"
         );
-        console.log(3);
         break;
     }
   }
