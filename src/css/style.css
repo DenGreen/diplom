@@ -252,3 +252,25 @@ body {
     font-size: 1.5rem;
   }
 }
+
+#tablo {
+  width: 100px;
+  display: inline-block;
+  font-weight: 400;
+  color: #212529;
+  background-color: #f8f9fa;
+  text-align: left;
+  vertical-align: middle;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: .25rem;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  border: none;
+}
+
+#tablo_zn {
+  color: #212529;
+  text-align: left;
+  font-size: 1rem;
+}

@@ -22,6 +22,7 @@ export default class GameController {
     this.indexTornSelect = null;
     this.level = 1;
     this.indexTargetAttac = null;
+    this.summPoints = 0;
   }
 
   init() {
@@ -260,6 +261,13 @@ export default class GameController {
     }
   }
 
+  scoringPoints() {
+    for(let arr of playerTeam.team) {
+      this.summPoints += arr.character.health;
+    }
+    document.getElementById('tablo_zn').textContent = this.summPoints;
+  }
+
   teamCheck() {
     if (playerTeam.team.length === 0) {
       alert("Победил комьпютер");
@@ -281,7 +289,7 @@ export default class GameController {
 
   levelUp(tm) {
     this.gamePlay.drawUi(tm);
-
+    this.scoringPoints();
     for (let char of playerTeam.team) {
       char.character.attack = Math.max(
         char.character.attack,
