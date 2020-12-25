@@ -31,12 +31,16 @@ export default class GameController {
     const onCellClickBind = this.onCellClick.bind(this);
     const onTurnEnterBind = this.onTurnEnter.bind(this);
     const onNewGameListenerBind = this.onNewGameListener.bind(this);
+    const onSaveGameListenerBind = this.onSaveGameListener.bind(this);
+    const onLoadGameListenerBind = this.onLoadGameListener.bind(this);
 
     this.gamePlay.addCellEnterListener(onTurnEnterBind);
     this.gamePlay.addCellEnterListener(onCellEnterBind);
     this.gamePlay.addCellLeaveListener(onCellLeaveBind);
     this.gamePlay.addCellClickListener(onCellClickBind);
     this.gamePlay.addNewGameListener(onNewGameListenerBind);
+    this.gamePlay.addSaveGameListener(onSaveGameListenerBind);
+    this.gamePlay.addLoadGameListener(onLoadGameListenerBind);
 
     this.start();
     // TODO: add event listeners to gamePlay events
@@ -220,7 +224,41 @@ export default class GameController {
     gameState.points += this.summPoints;
     this.level = 1;
     this.start();
+  }
+
+  onSaveGameListener() {
+    const save = {
+      playerTeam: playerTeam.team,
+      compTeam: compTeam.team,
+      summPoints: this.summPoints,
+      level: this.level
+    }
+    this.stateService.save(save)
+  }
+
+  onLoadGameListener() {
+    const load = this.stateService.load();
+
+    switch (load.level) {
+      case 1:
+        this.gamePlay.drawUi(themes.prairie);
+        break;
+      case 2:
+        this.gamePlay.drawUi(themes.desert);
+        break;
+      case 3:
+        this.gamePlay.drawUi(themes.arctic);
+        break;
+      case 4:
+        this.gamePlay.drawUi(themes.mountain);
+      break;
+    }
+    playerTeam.team = load.playerTeam;
+    compTeam.team = load.compTeam;
+    this.summPoints = load.summPoints;
     
+    this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
+    document.getElementById('tablo_zn').textContent = this.summPoints;
   }
 
   computerMove() {
