@@ -30,19 +30,25 @@ export default class GameController {
     const onCellLeaveBind = this.onCellLeave.bind(this);
     const onCellClickBind = this.onCellClick.bind(this);
     const onTurnEnterBind = this.onTurnEnter.bind(this);
-    this.gamePlay.drawUi(themes["prairie"]);
+    const onNewGameListenerBind = this.onNewGameListener.bind(this);
 
     this.gamePlay.addCellEnterListener(onTurnEnterBind);
     this.gamePlay.addCellEnterListener(onCellEnterBind);
     this.gamePlay.addCellLeaveListener(onCellLeaveBind);
     this.gamePlay.addCellClickListener(onCellClickBind);
+    this.gamePlay.addNewGameListener(onNewGameListenerBind);
 
+    this.start();
+    // TODO: add event listeners to gamePlay events
+    // TODO: load saved stated from stateService
+  }
+
+  start() {
+    this.gamePlay.drawUi(themes["prairie"]);
     generateTeam([Swordsman, Bowman, Magician], 1, 2, "Player");
     generateTeam([Daemon, Undead, Vampire], 1, 2, "Comp");
     this.gamePlay.charPositionPush(playerTeam.team, compTeam.team);
-
-    // TODO: add event listeners to gamePlay events
-    // TODO: load saved stated from stateService
+    document.getElementById('tablo_zn').textContent = this.summPoints;
   }
 
   async onCellClick(index) {
@@ -208,6 +214,15 @@ export default class GameController {
       this.gamePlay.deselectTurn(this.indexTargetAttac);
   }
 
+  onNewGameListener() {
+    playerTeam.team.splice(0, playerTeam.team.length);
+    compTeam.team.splice(0, compTeam.team.length);
+    gameState.points += this.summPoints;
+    this.level = 1;
+    this.start();
+    
+  }
+
   computerMove() {
     try {
       let random = Math.floor(Math.random() * compTeam.team.length);
@@ -283,6 +298,9 @@ export default class GameController {
         case 4:
           this.levelUp(themes.mountain);
           break;
+        case 5:
+          document.querySelector('.board-container').insertAdjacentHTML('afterbegin', '<div class="block">Победа!!!</div>');
+        break;
       }
     }
   }

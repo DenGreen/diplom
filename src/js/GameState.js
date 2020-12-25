@@ -1,6 +1,7 @@
 class GameState {
   constructor(){
     this.motion = 'Player'; /** Свойство хронящее очередь хода */
+    this.points = 0;
   }
 
 
